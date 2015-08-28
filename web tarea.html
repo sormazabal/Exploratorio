@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8 ">
+
+<!-- your webpage info goes here -->
+
+    <title>Big Brother is watching you</title>
+	
+	<meta name="author" content="The allmighty Sofi" />
+	<meta name="description" content="The best page in the world" />
+
+<!-- you should always add your stylesheet (css) in the head tag so that it starts loading before the page html is being displayed -->	
+	<link rel="stylesheet" href="css pag.css" type="text/css" />
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+	 <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script> ## for the histogram part
+	 
+</head>
+<body>
+
+<!-- webpage content goes here in the body -->
+
+	<div id="page">
+		<div id="upper">
+			<header>
+			<h1>Big Brother is watching you</h1>
+			<h2>Ahhh! The places you'll go!</h2>
+		</header>
+		</div>
+		
+		<div id="content">
+			
+			<p>
+				Esta es la mejor p᧩na de la existencia. P㮧anme un 7.
+			</p>
+			
+		</div>
+		
+		<div id = "resumen">
+		<h2> Datos Generales </h2>
+	
+		<table>
+			<tr>
+				<th>Cantidades</th>
+				<th>Promedios</th>
+
+			</tr>
+			<tr>
+				<td>4768757 Usuarios</td>
+				<td>8.3 amigos por usuario</td>
+		
+			</tr>
+			<tr class="even">
+				<td>379379828 Ubicaciones</td>
+				<td>32897298 Check ins por usuario</td>
+				
+			</tr>
+			<tr>
+				<td>393292 Check ins</td>
+				<td>87272 Check ins por ubicación/td>
+				
+			</tr>
+			
+		</table>
+		</div>
+		
+		<div id = "mapbox">
+		<h2> Mapa de Check-ins </h2>
+		<p> Este mapa muestra la ubicación de 500 check ins random. </p>
+		<div id="map"></div>
+		<script> var map = L.map('map').setView([51.505, -0.09], 13); 
+		L.tileLayer('https://{s}.tiles.mapbox.com/v4/<sormazabal.ff680016>/{z}/{x}/{y}.png?access_token=<pk.eyJ1Ijoic29ybWF6YWJhbCIsImEiOiJkZTk1MzE1MmI2Mjk0YTg4MjUwMWY5NDlmYjk3ODkzMSJ9.X8cHVGNC_Onq0IdRV8jWVw>').addTo(map);
+		
+		</script>
+		</div>
+		
+		<div id = "histo">
+		<h2> Histograma de Check-ins </h2>
+		<p> Histograma con la distribución del númeroro de check-ins </p>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+<script>
+var payments = crossfilter([ // variables random para rellenar poir mientras
+  {date: "2011-11-14T16:17:54Z", quantity: 2, total: 190, tip: 100, type: "tab"},
+  {date: "2011-11-14T16:20:19Z", quantity: 2, total: 190, tip: 100, type: "tab"},
+  {date: "2011-11-14T16:28:54Z", quantity: 1, total: 300, tip: 200, type: "visa"},
+  {date: "2011-11-14T16:30:43Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+  {date: "2011-11-14T16:48:46Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+  {date: "2011-11-14T16:53:41Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+  {date: "2011-11-14T16:54:06Z", quantity: 1, total: 100, tip: 0, type: "cash"},
+  {date: "2011-11-14T16:58:03Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+  {date: "2011-11-14T17:07:21Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+  {date: "2011-11-14T17:22:59Z", quantity: 2, total: 90, tip: 0, type: "tab"},
+  {date: "2011-11-14T17:25:45Z", quantity: 2, total: 200, tip: 0, type: "cash"},
+  {date: "2011-11-14T17:29:52Z", quantity: 1, total: 200, tip: 100, type: "visa"}
+]);
+</script>
+<div id="charts">
+  
+  <div id="distance-chart" class="chart">
+    <div class="title">Distance (mi.)</div>
+  </div>
+  <div id="date-chart" class="chart">
+    <div class="title">Date</div>
+  </div>
+</div>
+
+<aside id="totals"><span id="active">-</span> a <span id="total">-</span> "(fechas selecionadas)""</aside>
+<script>d3.csv("flights-3m.json", function(error, flights) {
+  // Various formatters.
+  var formatNumber = d3.format(",d"),
+      formatChange = d3.format("+,d"),
+      formatDate = d3.time.format("%B %d, %Y"),
+      formatTime = d3.time.format("%I:%M %p");
+  // A nest operator, for grouping the flight list.
+  var nestByDate = d3.nest()
+      .key(function(d) { return d3.time.day(d.date); });
+  // A little coercion, since the CSV is untyped.
+  flights.forEach(function(d, i) {
+    d.index = i;
+    d.date = parseDate(d.date);
+    d.delay = +d.delay;
+    d.distance = +d.distance;
+  });
+  // Create the crossfilter for the relevant dimensions and groups.
+  var flight = crossfilter(flights),
+      all = flight.groupAll(),
+      date = flight.dimension(function(d) { return d.date; }),
+      dates = date.group(d3.time.day),
+      hour = flight.dimension(function(d) { return d.date.getHours() + d.date.getMinutes() / 60; }),
+      hours = hour.group(Math.floor),
+      delay = flight.dimension(function(d) { return Math.max(-60, Math.min(149, d.delay)); }),
+      delays = delay.group(function(d) { return Math.floor(d / 10) * 10; }),
+      distance = flight.dimension(function(d) { return Math.min(1999, d.distance); }),
+      distances = distance.group(function(d) { return Math.floor(d / 50) * 50; });
+  var charts = [
+    barChart()
+        .dimension(hour)
+        .group(hours)
+      .x(d3.scale.linear()
+        .domain([0, 24])
+        .rangeRound([0, 10 * 24])),
+    barChart()
+        .dimension(delay)
+        .group(delays)
+      .x(d3.scale.linear()
+        .domain([-60, 150])
+        .rangeRound([0, 10 * 21])),
+    barChart()
+        .dimension(distance)
+        .group(distances)
+      .x(d3.scale.linear()
+        .domain([0, 2000])
+        .rangeRound([0, 10 * 40])),
+    barChart()
+        .dimension(date)
+        .group(dates)
+        .round(d3.time.day.round)
+      .x(d3.time.scale()
+        .domain([new Date(2001, 0, 1), new Date(2001, 3, 1)])
+        .rangeRound([0, 10 * 90]))
+        .filter([new Date(2001, 1, 1), new Date(2001, 2, 1)])
+  ];
+  // Given our array of charts, which we assume are in the same order as the
+  // .chart elements in the DOM, bind the charts to the DOM and render them.
+  // We also listen to the chart's brush events to update the display.
+  var chart = d3.selectAll(".chart")
+      .data(charts)
+      .each(function(chart) { chart.on("brush", renderAll).on("brushend", renderAll); });
+  // Render the initial lists.
+  var list = d3.selectAll(".list")
+      .data([flightList]);
+  // Render the total.
+  d3.selectAll("#total")
+      .text(formatNumber(flight.size()));
+  renderAll();
+  // Renders the specified chart or list.
+  function render(method) {
+    d3.select(this).call(method);
+  }
+  // Whenever the brush moves, re-rendering everything.
+  function renderAll() {
+    chart.each(render);
+    list.each(render);
+    d3.select("#active").text(formatNumber(all.value()));
+  }
+  // Like d3.time.format, but faster.
+  function parseDate(d) {
+    return new Date(2001,
+        d.substring(0, 2) - 1,
+        d.substring(2, 4),
+        d.substring(4, 6),
+        d.substring(6, 8));
+  } </script>
+
+		</div>
+		
+		<div id = "filtrotemp">
+		<h3> Elige el periodo que quieres examinar </h3>
+		<p> Histograma de un periodo específicoco </p>
+		</div>
+		
+		
+		<div id="footer">
+			<p>
+				Webpage made by <a href="mailto:sormazabal@uc.cl"[The allmighty Sofi]</a>
+			</p>
+		</div>
+	</div>
+</body>
+</html>

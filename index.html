@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8 ">
+
+<!-- your webpage info goes here -->
+
+    <title>Big Brother is watching you</title>
+	
+	<meta name="author" content="The allmighty Sofi" />
+	<meta name="description" content="The best page in the world" />
+
+<!-- you should always add your stylesheet (css) in the head tag so that it starts loading before the page html is being displayed -->	
+	<link rel="stylesheet" href="css pag.css" type="text/css" />
+  <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+	 <script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.js"></script>
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script> <!-- ## for the histogram part -->
+	 <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script src='https://api.mapbox.com/mapbox.js/v2.2.1/mapbox.js'></script>
+
+
+ <link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.css" />
+      
+ <!--  // <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>
+  // <script type='text/javascript' src='http://cdn.leafletjs.com/leaflet-0.7.2/leaflet.js?2'></script>
+ -->
+
+<link href='https://api.mapbox.com/mapbox.js/v2.2.1/mapbox.css' rel='stylesheet' />
+
+	 
+</head>
+<body>
+
+<!-- webpage content goes here in the body -->
+
+	<div id="page">
+		<div id="upper">
+			<header>
+			<h1>Big Brother is watching you</h1>
+			<h2>Ahhh! The places you'll go!</h2>
+		</header>
+		</div>
+		
+		<div id="content">
+			
+			<p>
+				Esta es la mejor página de la existencia. Pónganme un 7.
+			</p>
+			
+		</div>
+		
+		<div id = "resumen">
+		<h2> Datos Generales </h2>
+	
+		<table>
+			<tr>
+				<th>Cantidades</th>
+				<th>Promedios</th>
+
+			</tr>
+			<tr>
+				<td>4768757 Usuarios</td>
+				<td>9.44697 amigos por usuario</td>
+		
+			</tr>
+			<tr class="even">
+				<td>379379828 Ubicaciones</td>
+				<td>32897298 Check ins por usuario</td>
+				
+			</tr>
+			<tr>
+				<td>393292 Check ins</td>
+				<td>87272 Check ins por ubicación</td>
+				
+			</tr>
+			
+		</table>
+		</div>
+		
+		<div id = "mapbox">
+		<h2> Mapa de Check-ins </h2>
+		<p> Este mapa muestra la ubicación de 500 check ins random. </p>
+		<div id="map"></div>
+    <script type='text/javascript' src='datos.json'></script>
+    <script type='text/javascript' src='mapa.js'></script>
+
+		
+		
+		</div>
+		
+		<div id = "histo">
+		<h2> Histograma de Check-ins </h2>
+		<p> Histograma con la distribución del número de check-ins </p>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script type='text/javascript' src='datos.json'></script>
+    <!-- <script type='text/javascript' src='histo.js'></script> -->
+   <script src="crossfilter.v1.min.js"></script>
+
+  
+<script> 
+d3.json("datos.json", function (data) {
+        // Con esto se carga el JSON
+
+        var map = data.map(function (i) {
+            return i.time // Del JSON se obtiene solo el dato que se usará para el 
+                        // histograma: la fecha.
+        })
+
+        console.log(map);
+        })
+
+/*var margin = {top: 10, right: 10, bottom: 100, left: 40},
+    margin2 = {top: 430, right: 10, bottom: 20, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom,
+    height2 = 500 - margin2.top - margin2.bottom;
+
+var parseDate = d3.time.format("%Y-%m-%d").parse;
+
+var x = d3.time.scale().range([0, width]),
+    x2 = d3.time.scale().range([0, width]),
+    y = d3.scale.linear().range([height, 0]),
+    y2 = d3.scale.linear().range([height2, 0]);
+
+var xAxis = d3.svg.axis().scale(x).orient("bottom"),
+    xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
+    yAxis = d3.svg.axis().scale(y).orient("left");
+
+var brush = d3.svg.brush()
+    .x(x2)
+    .on("brush", brushed);
+
+var area = d3.svg.area()
+    .interpolate("monotone")
+    .x(function(d) { return x(d.time); })
+    .y0(height)
+    .y1(function(d) { return y(d.checkins); });
+
+var area2 = d3.svg.area()
+    .interpolate("monotone")
+    .x(function(d) { return x2(d.time); })
+    .y0(height2)
+    .y1(function(d) { return y2(d.checkins); });
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+
+svg.append("defs").append("clipPath")
+    .attr("id", "clip")
+  .append("rect")
+    .attr("width", width)
+    .attr("height", height);
+
+var focus = svg.append("g")
+    .attr("class", "focus")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var context = svg.append("g")
+    .attr("class", "context")
+    .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+
+d3.json("datos.json", type, function(error, datos) {
+  x.domain(d3.extent(data.map(function(d) { return d.time; })));
+  y.domain([0, d3.max(data.map(function(d) { return d.checkins; }))]);
+  x2.domain(x.domain());
+  y2.domain(y.domain());
+
+  focus.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("d", area);
+
+  focus.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis);
+
+  focus.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+  context.append("path")
+      .datum(data)
+      .attr("class", "area")
+      .attr("d", area2);
+
+  context.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height2 + ")")
+      .call(xAxis2);
+
+  context.append("g")
+      .attr("class", "x brush")
+      .call(brush)
+    .selectAll("rect")
+      .attr("y", -6)
+      .attr("height", height2 + 7);
+});
+
+function brushed() {
+  x.domain(brush.empty() ? x2.domain() : brush.extent());
+  focus.select(".area").attr("d", area);
+  focus.select(".x.axis").call(xAxis);
+}
+
+function type(d) {
+  d.time = parseDate(d.time);
+  d.checkins = +d.location;
+  return d;
+}
+ */
+
+</script>
+
+		</div>
+		
+		<div id = "filtrotemp">
+		<h3> Elige el periodo que quieres examinar </h3>
+		<p> Histograma de un periodo específico </p>
+		</div>
+		
+		
+		<div id="footer">
+			<p>
+				Webpage made by <a href="mailto:sormazabal@uc.cl"[The allmighty Sofi]</a>
+			</p>
+		</div>
+	</div>
+</body>
+</html>

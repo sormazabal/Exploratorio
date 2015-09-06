@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+</head>
+<body>
+	<script> 
+
+d3.json("datos.json", function (data) {
+        // Con esto se carga el JSON
+
+        var map = datos.map(function (i) {return datos[i].time; }) 
+
+        console.log(map);
+        })
+	</script>
+
+
+
+
+
+</body>
+</html>

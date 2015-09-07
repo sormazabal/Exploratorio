@@ -2,17 +2,186 @@
 <html>
 <head>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+	 <script src="//code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+ <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>
+ <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+ <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+ <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+<script type='text/javascript' src='datos.json'></script>
+
+<style>
+
+svg {
+  font: 10px sans-serif;
+}
+
+.area {
+  fill: steelblue;
+  clip-path: url(#clip);
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+</style>
 </head>
 <body>
+
+<!-- 	Fuentes: http://www.w3schools.com/html/html_iframe.asp
+	http://bl.ocks.org/mbostock/3048450
+	http://bl.ocks.org/sbrudz/ed6454e3d25640d19a41#index.html
+	https://morrisjs.github.io/morris.js/lines.html
+	http://bl.ocks.org/mbostock/1667367
+	y la ayudantía y links de Daniela Flores -->
+
+	
+<!-- <script type='text/javascript' src='histo.js'></script> -->
+
+
+<script>
+
+/* <div id="myfirstchart" style="height: 250px;"></div>
 	<script> 
+/*new Morris.Line({var bars = canvas.selectAll(".bar") // Se asigna una barrita para cada intervalo.
+            .data(histogram)
+            .enter()
+            .append("g")
 
-d3.json("datos.json", function (data) {
-        // Con esto se carga el JSON
+        bars.append("rect")
+            .attr("x", function (d) { return x(d.x)+0.1; }) // Se definen las dimensiones y el color de los rectángulos que formarán las barras.
+            .attr("y", function (d) {return 500 - y(d.y); }) 
+            .attr("width", function (d) { return x(d.dx); })
+            .attr("height", function (d) { return y(d.y); })
+            .attr("fill", "steelblue")
 
-        var map = datos.map(function (i) {return datos[i].time; }) 
+  // ID of the element in which to draw the chart.
+  element: 'myfirstchart',
+  // Chart data records -- each entry in this array corresponds to a point on
+  // the chart.
 
-        console.log(map);
-        })
+
+var data = JSON.parse(datos.json);
+
+ 
+  // The name of the data record attribute that contains x-values.
+  xkey: 'time',
+  // A list of names of data record attributes that contain y-values.
+  ykeys: ['location'],
+  // Labels for the ykeys -- will be displayed when you hover over the
+  // chart.
+  labels: ['Value']
+});
+*/
+
+
+        var margin = {top: 10, right: 30, bottom: 30, left: 50},
+		    width = 960 - margin.left - margin.right,
+		    height = 500 - margin.top - margin.bottom;
+
+d3.json("datos2.json", function(data) {
+
+	var parseDate = d3.time.format("%m/%d/%Y %I:%M:%S %p").parse;
+		var formatDate = d3.time.format("%m/%y");
+		var formatCount = d3.format(",.0f");
+
+		var x = d3.time.scale().range([0, width]);
+		var y = d3.scale.linear().range([height, 0]);
+
+		var xAxis = d3.svg.axis().scale(x)
+		  .orient("bottom").tickFormat(formatDate);
+
+		var yAxis = d3.svg.axis().scale(y)
+		  .orient("left").ticks(6);
+
+		  // Create the SVG drawing area
+		var svg = d3.select("body")
+		  .append("svg")
+		  .attr("width", width + margin.left + margin.right)
+		  .attr("height", height + margin.top + margin.bottom)
+		  .append("g")
+		  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var map = data.map(function (i) {return i.time;
+data.forEach(function(d) {
+		    d.created_date = parseDate(d["Created Date"]);
+		  });
+
+ })
+        console.log(map); 
+// Determine the first and list dates in the data set
+		  var monthExtent = d3.extent(data, function(d) { return d.created_date; });
+
+		  // Create one bin per month, use an offset to include the first and last months
+		  var monthBins = d3.time.months(d3.time.month.offset(monthExtent[0],-1),
+		                                 d3.time.month.offset(monthExtent[1],1));
+
+		  // Use the histogram layout to create a function that will bin the data
+		  var binByMonth = d3.layout.histogram()
+		    .value(function(d) { return d.created_date; })
+		    .bins(monthBins);
+
+		  // Bin the data by month
+		  var histData = binByMonth(data);
+
+		  // Scale the range of the data by setting the domain
+		  x.domain(d3.extent(monthBins));
+		  y.domain([0, d3.max(histData, function(d) { return d.y; })]);
+
+
+		  // Set up one bar for each bin
+		  // Months have slightly different lengths so calculate the width for each bin
+		  // Note: dx, the width of the histogram bin, is in milliseconds so convert the x value
+		  // into UTC time and convert the sum back to a date in order to help calculate the width
+		  // Thanks to npdoty for pointing this out in this stack overflow post:
+		  // http://stackoverflow.com/questions/17745682/d3-histogram-date-based
+		  svg.selectAll(".bar")
+		      .data(histData)
+		    .enter().append("rect")
+		      .attr("class", "bar")
+		      .attr("x", function(d) { return x(d.x); })
+		      .attr("width", function(d) { return x(new Date(d.x.getTime() + d.dx))-x(d.x)-1; })
+		      .attr("y", function(d) { return y(d.y); })
+		      .attr("height", function(d) { return height - y(d.y); });
+
+		  // Add the X Axis
+		  svg.append("g")
+		      .attr("class", "x axis")
+		      .attr("transform", "translate(0," + height + ")")
+		      .call(xAxis)
+		      .append("text")
+		      .attr("x", 300)
+		      .attr("dy", "2em")
+		      .style("text-anchor", "end")
+		      .text("Fechas");;
+
+		  // Add the Y Axis and label
+		  svg.append("g")
+		     .attr("class", "y axis")
+		     .call(yAxis)
+		    .append("text")
+		      .attr("transform", "rotate(-90)")
+		      .attr("y", 6)
+		      .attr("dy", ".71em")
+		      .style("text-anchor", "end")
+		      .text("Numero de checkins");
+
+		      });
+
+
+
+
 	</script>
 
 
